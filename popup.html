@@ -21,19 +21,21 @@
         <span id="currentUrl">未选择标签页</span>
         <button id="refreshBtn" class="btn-small">🔄 刷新</button>
       </div>
+      <div class="storage-tabs">
+        <button class="storage-tab active" data-type="cookies">🍪 Cookies</button>
+        <button class="storage-tab" data-type="localStorage">💾 LocalStorage</button>
+        <button class="storage-tab" data-type="sessionStorage">📦 SessionStorage</button>
+      </div>
       <div class="actions">
-        <button id="addCookieBtn" class="btn-primary">➕ 添加</button>
-        <button id="exportBtn" class="btn-secondary">📤 导出</button>
-        <button id="importBtn" class="btn-secondary">📥 导入</button>
-        <button id="clearAllBtn" class="btn-danger">🗑️ 清空</button>
-        <button id="showAllBtn" class="btn-secondary">🌐 查看全部</button>
+        <button id="exportBtn" class="btn-primary">📤 导出全部</button>
+        <button id="exportCurrentBtn" class="btn-secondary">📋 导出当前</button>
       </div>
     </div>
 
-    <div class="cookie-list" id="cookieList">
+    <div class="cookie-list" id="storageList">
       <div class="empty-state">
-        <p>🍪 点击下方按钮选择当前标签页</p>
-        <p>或使用搜索功能查找cookies</p>
+        <p>🍪 选择存储类型查看数据</p>
+        <p>Cookies / LocalStorage / SessionStorage</p>
       </div>
     </div>
 
