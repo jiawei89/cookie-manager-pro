@@ -34,12 +34,47 @@ async function loadCookies() {
   if (!currentTab) return;
 
   const url = new URL(currentTab.url);
-  const cookies = await chrome.cookies.getAll({ domain: url.hostname });
+  
+  // 获取当前域名和所有相关域名的cookies
+  const hostname = url.hostname;
+  let cookies = [];
+  
+  // 尝试多种域名匹配方式
+  const domains = [
+    hostname,
+    `.${hostname}`,
+    `www.${hostname}`,
+    `.www.${hostname}`
+  ];
+  
+  for (const domain of domains) {
+    try {
+      const domainCookies = await chrome.cookies.getAll({ domain: domain });
+      cookies = cookies.concat(domainCookies);
+    } catch (err) {
+      console.error(`获取域名 ${domain} 的cookies失败:`, err);
+    }
+  }
+  
+  // 去重（使用domain+name作为唯一标识）
+  const uniqueCookies = new Map();
+  for (const cookie of cookies) {
+    const key = `${cookie.domain}:${cookie.name}:${cookie.path}`;
+    if (!uniqueCookies.has(key)) {
+      uniqueCookies.set(key, cookie);
+    }
+  }
+  
+  cookies = Array.from(uniqueCookies.values());
 
   allCookies = cookies.filter(cookie => {
     const key = `${cookie.domain}:${cookie.name}`;
     return !blockedCookies.has(key);
   });
+
+  console.log(`✅ 找到 ${allCookies.length} 个cookies (原始: ${cookies.length})`);
+  console.log('📍 当前域名:', hostname);
+  console.log('🍪 Cookies:', allCookies.map(c => ({ name: c.name, domain: c.domain })));
 
   displayCookies();
   updateStats();
@@ -50,21 +85,39 @@ function displayCookies(cookies = allCookies) {
   const cookieList = document.getElementById('cookieList');
 
   if (cookies.length === 0) {
+    const emptyMsg = showingAllCookies
+      ? '<p>🍪 浏览器中没有cookies</p>'
+      : '<p>🍪 当前网站没有cookies</p><p>试试点击"查看全部"查看所有域名的cookies</p>';
+
     cookieList.innerHTML = `
       <div class="empty-state">
-        <p>🍪 没有找到cookies</p>
-        <p>尝试刷新或搜索其他域名</p>
+        ${emptyMsg}
       </div>
     `;
     return;
   }
 
-  cookieList.innerHTML = cookies.map(cookie => {
-    const key = `${cookie.domain}:${cookie.name}`;
-    const isLocked = lockedCookies.has(key);
-    const isBlocked = blockedCookies.has(key);
+  // 按域名分组
+  const groupedCookies = new Map();
+  for (const cookie of cookies) {
+    const domain = cookie.domain;
+    if (!groupedCookies.has(domain)) {
+      groupedCookies.set(domain, []);
+    }
+    groupedCookies.get(domain).push(cookie);
+  }
 
-    return `
+  let html = '';
+  for (const [domain, domainCookies] of groupedCookies) {
+    html += `<div class="domain-section">
+      <div class="domain-header">🌐 ${escapeHtml(domain)} (${domainCookies.length}个)</div>`;
+
+    for (const cookie of domainCookies) {
+      const key = `${cookie.domain}:${cookie.name}`;
+      const isLocked = lockedCookies.has(key);
+      const isBlocked = blockedCookies.has(key);
+
+      html += `
       <div class="cookie-item" data-cookie-key="${key}">
         <div class="cookie-header">
           <span class="cookie-name">${escapeHtml(cookie.name)}</span>
@@ -81,10 +134,6 @@ function displayCookies(cookies = allCookies) {
         </div>
         <div class="cookie-details">
           <div class="cookie-detail">
-            <span class="cookie-label">域名:</span>
-            <span>${escapeHtml(cookie.domain)}</span>
-          </div>
-          <div class="cookie-detail">
             <span class="cookie-label">路径:</span>
             <span>${escapeHtml(cookie.path)}</span>
           </div>
@@ -93,9 +142,13 @@ function displayCookies(cookies = allCookies) {
             ${escapeHtml(cookie.value)}
           </div>
         </div>
-      </div>
-    `;
-  }).join('');
+      </div>`;
+    }
+
+    html += '</div>';
+  }
+
+  cookieList.innerHTML = html;
 
   // 添加事件监听
   cookieList.querySelectorAll('.cookie-item').forEach(item => {
@@ -110,11 +163,52 @@ function displayCookies(cookies = allCookies) {
 
 // 更新统计
 function updateStats() {
-  document.getElementById('cookieCount').textContent = `${allCookies.length} cookies`;
+  const countSpan = document.getElementById('cookieCount');
+  
+  if (showingAllCookies) {
+    countSpan.textContent = `${allCookies.length} cookies (全部域名)`;
+  } else {
+    countSpan.textContent = `${allCookies.length} cookies`;
+  }
 
-  if (currentTab) {
+  if (currentTab && !showingAllCookies) {
     const url = new URL(currentTab.url);
     document.getElementById('domainInfo').textContent = url.hostname;
+  } else {
+    document.getElementById('domainInfo').textContent = '';
+  }
+}
+
+// 显示所有cookies
+let showingAllCookies = false;
+
+async function showAllCookies() {
+  showingAllCookies = !showingAllCookies;
+  const btn = document.getElementById('showAllBtn');
+
+  if (showingAllCookies) {
+    btn.textContent = '📍 当前域名';
+    btn.classList.add('btn-primary');
+
+    // 获取所有cookies
+    try {
+      const allDomainsCookies = await chrome.cookies.getAll({});
+      allCookies = allDomainsCookies.filter(cookie => {
+        const key = `${cookie.domain}:${cookie.name}`;
+        return !blockedCookies.has(key);
+      });
+
+      console.log(`✅ 获取到所有域名的 ${allCookies.length} 个cookies`);
+      displayCookies();
+      updateStats();
+    } catch (err) {
+      console.error('获取所有cookies失败:', err);
+      showToast('获取失败: ' + err.message);
+    }
+  } else {
+    btn.textContent = '🌐 查看全部';
+    btn.classList.remove('btn-primary');
+    await loadCookies();
   }
 }
 
@@ -211,13 +305,24 @@ function searchCookies(query) {
 
 // 导出cookies
 async function exportCookies() {
-  const url = new URL(currentTab.url);
-  const cookies = await chrome.cookies.getAll({ domain: url.hostname });
+  let cookies;
+  let filename;
+
+  if (showingAllCookies) {
+    // 导出所有显示的cookies
+    cookies = allCookies;
+    filename = `cookies_all_${Date.now()}.json`;
+  } else {
+    // 导出当前域名的cookies
+    const url = new URL(currentTab.url);
+    cookies = await chrome.cookies.getAll({ domain: url.hostname });
+    filename = `cookies_${url.hostname}_${Date.now()}.json`;
+  }
 
   const exportData = {
-    url: currentTab.url,
-    domain: url.hostname,
     exportedAt: new Date().toISOString(),
+    totalCount: cookies.length,
+    currentUrl: currentTab ? currentTab.url : 'all',
     cookies: cookies.map(c => ({
       name: c.name,
       value: c.value,
@@ -234,11 +339,11 @@ async function exportCookies() {
 
   const a = document.createElement('a');
   a.href = url2;
-  a.download = `cookies_${url.hostname}_${Date.now()}.json`;
+  a.download = filename;
   a.click();
 
   URL.revokeObjectURL(url2);
-  showToast('已导出');
+  showToast(`已导出 ${cookies.length} 个cookies`);
 }
 
 // 导入cookies
@@ -431,6 +536,7 @@ function setupEventListeners() {
   document.getElementById('exportBtn').addEventListener('click', exportCookies);
   document.getElementById('importBtn').addEventListener('click', importCookies);
   document.getElementById('clearAllBtn').addEventListener('click', clearAllCookies);
+  document.getElementById('showAllBtn').addEventListener('click', showAllCookies);
   document.getElementById('cancelBtn').addEventListener('click', hideEditModal);
   document.getElementById('cookieForm').addEventListener('submit', saveCookie);
 
