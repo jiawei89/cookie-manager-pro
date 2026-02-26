@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cookie Manager Pro</title>
+  <link rel="stylesheet" href="css/popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🍪 Cookie Manager Pro</h1>
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="搜索cookies...">
+        <button id="searchBtn">🔍</button>
+      </div>
+    </header>
+
+    <div class="controls">
+      <div class="current-tab">
+        <span id="currentUrl">未选择标签页</span>
+        <button id="refreshBtn" class="btn-small">🔄 刷新</button>
+      </div>
+      <div class="actions">
+        <button id="addCookieBtn" class="btn-primary">➕ 添加</button>
+        <button id="exportBtn" class="btn-secondary">📤 导出</button>
+        <button id="importBtn" class="btn-secondary">📥 导入</button>
+        <button id="clearAllBtn" class="btn-danger">🗑️ 清空</button>
+      </div>
+    </div>
+
+    <div class="cookie-list" id="cookieList">
+      <div class="empty-state">
+        <p>🍪 点击下方按钮选择当前标签页</p>
+        <p>或使用搜索功能查找cookies</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="stats">
+        <span id="cookieCount">0 cookies</span>
+        <span id="domainInfo"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 编辑/添加Cookie模态框 -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <h2 id="modalTitle">编辑Cookie</h2>
+      <form id="cookieForm">
+        <div class="form-group">
+          <label for="cookieDomain">域名 (Domain):</label>
+          <input type="text" id="cookieDomain" required>
+        </div>
+        <div class="form-group">
+          <label for="cookieName">名称 (Name):</label>
+          <input type="text" id="cookieName" required>
+        </div>
+        <div class="form-group">
+          <label for="cookieValue">值 (Value):</label>
+          <textarea id="cookieValue" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="cookiePath">路径 (Path):</label>
+          <input type="text" id="cookiePath" value="/">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cookieExpiration">过期时间:</label>
+            <input type="datetime-local" id="cookieExpiration">
+          </div>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" id="cookieSecure">
+              Secure
+            </label>
+            <label>
+              <input type="checkbox" id="cookieHttpOnly">
+              HttpOnly
+            </label>
+            <label>
+              <input type="checkbox" id="cookieSameSite">
+              SameSite
+            </label>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary">💾 保存</button>
+          <button type="button" id="cancelBtn" class="btn-secondary">取消</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/popup.js"></script>
+</body>
+</html>
