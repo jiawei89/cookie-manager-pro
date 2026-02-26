@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head><title>Create Icons</title></head>
+<body>
+<script>
+// 创建简单的PNG图标
+function createIcon(size, callback) {
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  
+  // 背景 - 渐变紫色
+  const gradient = ctx.createLinearGradient(0, 0, size, size);
+  gradient.addColorStop(0, '#667eea');
+  gradient.addColorStop(1, '#764ba2');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, size, size);
+  
+  // 绘制cookie圆形
+  const centerX = size / 2;
+  const centerY = size / 2;
+  const radius = size / 3;
+  
+  ctx.fillStyle = '#FFD700';
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // 绘制巧克力豆
+  ctx.fillStyle = '#654321';
+  const chipSize = Math.max(2, size / 20);
+  const chips = [
+    {x: centerX - radius * 0.4, y: centerY - radius * 0.3},
+    {x: centerX + radius * 0.4, y: centerY - radius * 0.3},
+    {x: centerX, y: centerY},
+    {x: centerX - radius * 0.3, y: centerY + radius * 0.4},
+    {x: centerX + radius * 0.3, y: centerY + radius * 0.4}
+  ];
+  
+  chips.forEach(chip => {
+    ctx.beginPath();
+    ctx.arc(chip.x, chip.y, chipSize, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  
+  callback(canvas.toDataURL('image/png'));
+}
+
+// 创建所有尺寸
+[16, 32, 48, 128].forEach(size => {
+  createIcon(size, (dataUrl) => {
+    const link = document.createElement('a');
+    link.download = `icon${size}.png`;
+    link.href = dataUrl;
+    link.click();
+    console.log(`✓ Created icon${size}.png`);
+  });
+});
+</script>
+</body>
+</html>
