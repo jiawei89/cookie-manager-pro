@@ -1,19 +1,38 @@
 # 🍪 Cookie Manager Pro
 
-一个强大的Chrome浏览器Cookie管理器扩展，可以轻松管理、编辑、导出和导入cookies。
+一个强大的Chrome浏览器存储管理器扩展，支持Cookies、LocalStorage和SessionStorage的查看、导出和管理。
 
 ## ✨ 功能特性
 
-- ✅ **查看Cookies** - 查看当前网站的所有cookies
-- ➕ **添加Cookies** - 手动添加新的cookies
-- ✏️ **编辑Cookies** - 修改现有cookie的值和属性
-- 🗑️ **删除Cookies** - 删除不需要的cookies
-- 🔍 **搜索功能** - 快速搜索特定cookies
-- 🔒 **锁定Cookies** - 锁定重要cookies防止误操作
-- 🚫 **屏蔽Cookies** - 屏蔽特定cookie的设置
-- 📤 **导出功能** - 导出cookies为JSON格式
-- 📥 **导入功能** - 从JSON文件导入cookies
+### 存储类型支持
+- 🍪 **Cookies** - 查看和管理所有cookies
+- 💾 **LocalStorage** - 查看和管理本地存储
+- 📦 **SessionStorage** - 查看和管理会话存储
+
+### 核心功能
+- ✅ **多存储类型切换** - 标签页快速切换不同存储类型
+- 📋 **复制功能** - 一键复制存储值
+- 📤 **导出当前存储** - 导出当前查看的存储类型
+- 📦 **导出全部数据** - 一键导出所有存储类型（Cookies + LocalStorage + SessionStorage）
+- 🔍 **实时查看** - 实时加载当前网站的所有存储数据
 - 🎨 **美观界面** - 现代化的用户界面设计
+
+### Cookies专属功能
+- 🔒 **锁定Cookies** - 锁定重要cookies防止误操作
+- 🗑️ **删除Cookies** - 删除不需要的cookies
+
+## 🚀 特色
+
+### 适用于现代Web应用
+很多现代应用（如知识星球、微博等）使用LocalStorage存储认证信息，而不仅仅是cookies。本扩展可以完整提取所有类型的存储数据！
+
+### 完整的数据导出
+导出功能会生成包含以下内容的完整JSON文件：
+- 所有Cookies（含域名、路径、过期时间等）
+- 所有LocalStorage数据
+- 所有SessionStorage数据
+
+## 🚀 安装方法
 
 ## 🚀 安装方法
 
@@ -36,55 +55,56 @@
 
 ## 📖 使用说明
 
-### 查看Cookies
+### 查看存储数据
 
 1. 访问任何网站
 2. 点击浏览器工具栏中的Cookie Manager Pro图标
-3. 自动显示当前网站的所有cookies
+3. 点击顶部的标签切换不同存储类型：
+   - **🍪 Cookies** - 查看HTTP Cookies
+   - **💾 LocalStorage** - 查看本地存储
+   - **📦 SessionStorage** - 查看会话存储
 
-### 添加/编辑Cookie
+### 复制存储值
 
-1. 点击"添加"按钮或现有cookie的编辑按钮
-2. 填写cookie信息：
-   - 域名 (Domain)
-   - 名称 (Name)
-   - 值 (Value)
-   - 路径 (Path)
-   - 过期时间 (Expiration)
-   - 安全选项 (Secure, HttpOnly)
-3. 点击"保存"
+- Cookies: 点击📋按钮复制cookie
+- LocalStorage/SessionStorage: 点击📋按钮复制对应的值
 
-### 导出Cookies
+### 导出数据
 
-1. 查看要导出的cookies
-2. 点击"导出"按钮
-3. 选择保存位置
-4. Cookies将保存为JSON文件
+**导出当前存储类型**：
+1. 切换到想要导出的存储类型标签
+2. 点击"📋 导出当前"按钮
+3. 保存JSON文件
 
-### 导入Cookies
+**导出全部数据**（推荐）：
+1. 点击"📤 导出全部"按钮
+2. 自动导出所有存储类型的数据
+3. 保存为完整的JSON文件
 
-1. 点击"导入"按钮
-2. 选择之前导出的JSON文件
-3. 自动导入所有cookies
+### 锁定Cookies
 
-### 锁定/屏蔽Cookies
+- 点击🔒按钮锁定cookie，防止误操作
+- 锁定的cookies会显示黄色锁图标
 
-- **锁定**：点击🔒按钮锁定cookie，防止误操作
-- **屏蔽**：点击🚫按钮屏蔽cookie，防止网站设置该cookie
+### 删除Cookies
+
+- 点击❌按钮删除cookie
+- 确认后立即删除
 
 ## 🔒 隐私与安全
 
 - 所有数据存储在本地，不上传到任何服务器
 - 不会收集或传输任何个人信息
 - 完全开源，可自行审查代码
-- 建议使用后及时修改密码
+- 数据仅在浏览器本地处理
 
 ## 🛠️ 技术栈
 
 - **Manifest V3** - 最新的Chrome扩展API
-- **原生JavaScript** - 无外部依赖
+- **原生JavaScript** - 无外部依赖，轻量高效
 - **Chrome Storage API** - 本地数据持久化
 - **Chrome Cookies API** - Cookie操作
+- **Chrome Scripting API** - 注入脚本读取Web存储
 
 ## 📝 开发说明
 
@@ -97,11 +117,39 @@ cookie-manager-extension/
 ├── css/
 │   └── popup.css         # 样式文件
 ├── js/
-│   ├── popup.js          # 弹出页面逻辑
+│   ├── popup.js          # 弹出页面逻辑（增强版）
+│   ├── popup-old.js      # 旧版备份
 │   └── background.js     # 后台服务脚本
 ├── icons/                # 图标文件
 └── README.md             # 说明文档
 ```
+
+### 本地开发
+
+1. 克隆仓库：`git clone https://github.com/jiawei89/cookie-manager-pro.git`
+2. 在Chrome中加载扩展（开发者模式）
+3. 修改代码后在`chrome://extensions/`页面点击刷新按钮
+
+### 构建项目
+
+项目无需构建过程，直接加载即可使用。
+
+## 🌟 应用场景
+
+### 调试Web应用
+- 查看应用存储的所有数据
+- 快速复制token用于API测试
+- 检查存储数据是否正确
+
+### 数据迁移
+- 导出所有存储数据备份
+- 在不同设备间传输登录状态
+- 批量导入测试数据
+
+### 安全审计
+- 检查网站存储了哪些数据
+- 验证敏感信息是否加密存储
+- 清理不需要的存储数据
 
 ### 本地开发
 
