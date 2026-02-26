@@ -10,23 +10,6 @@ chrome.runtime.onInstalled.addListener((details) => {
       blockedCookies: [],
       lockedCookies: []
     });
-
-    // 创建右键菜单（如果API可用）
-    if (chrome.contextMenus) {
-      chrome.contextMenus.create({
-        id: 'viewCookies',
-        title: '🍪 查看Cookies',
-        contexts: ['page']
-      }, () => {
-        if (chrome.runtime.lastError) {
-          console.log('创建右键菜单失败:', chrome.runtime.lastError.message);
-        } else {
-          console.log('✅ 右键菜单创建成功');
-        }
-      });
-    } else {
-      console.log('⚠️ contextMenus API不可用');
-    }
   } else if (details.reason === 'update') {
     console.log('Cookie Manager Pro 已更新到版本', chrome.runtime.getManifest().version);
   }
@@ -102,18 +85,5 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
 });
-
-// 右键菜单点击事件（仅在API可用时）
-if (chrome.contextMenus && chrome.contextMenus.onClicked) {
-  chrome.contextMenus.onClicked.addListener((info, tab) => {
-    if (info.menuItemId === 'viewCookies' && tab) {
-      // 尝试打开popup
-      chrome.action.openPopup().catch(err => {
-        console.log('无法打开popup:', err.message);
-      });
-    }
-  });
-  console.log('✅ 右键菜单监听器已注册');
-}
 
 console.log('✅ Cookie Manager Pro background service worker已加载');
